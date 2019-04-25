@@ -22,18 +22,18 @@ Copyright 2018  Hamidreza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: BPMax class drives the whole program. main() is here.
 
-	Author: Hamidreza Chitsaz
+	Author: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamidreza Chitsaz: Oct 26, 2018
-	Ver: 1.4
 */
 
 #include <math.h>
 #include <time.h>
 
 #include "bpmax.h"
+#include <string.h>
+#include <sstream>
 
 int main(int argc, char** argv)
 {
@@ -61,6 +61,9 @@ BPMax::BPMax(int argc, char** argv)
 	seq_num = 0;
 	current_seq = 0;
 
+	var2 = 2;
+	var3 = 3;
+
 	while (opts->hasNext())
 	{
 		Option *current = opts->next();
@@ -87,6 +90,10 @@ BPMax::BPMax(int argc, char** argv)
 			quiet = true;
       		else if (count == 'p')
 			procNum = atoi(current->getArg());
+		else if (count == 'M')
+			var2 = atof(current->getArg());
+		else if (count == 'N')
+			var3 = atof(current->getArg());
 	}
 
 	files = filenames.size();
@@ -142,15 +149,29 @@ BPMax::BPMax(int argc, char** argv)
 
 	time_t now = time(NULL);
 
-	if(files >= 2) 
-		logfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".bpmax.run", (char *)"wt");
-	else
-		logfile = openfile(filenames[0], (char *)".bpmax.run", (char *)"wt");
+	std::ostringstream var2_str;
+	var2_str << var2;
+	std::string str_1 = var2_str.str();
+	char *var2_s = new char[str_1.length() + 1];
+	strcpy(var2_s, str_1.c_str());
+	//const char *var2_s = var2_str.str().c_str();
+
+	std::ostringstream var3_str;
+	var3_str << var3;
+	std::string str_2 = var3_str.str();
+	char *var3_s = new char[str_2.length() + 1];
+	strcpy(var3_s, str_2.c_str());
+	//const char *var3_s = var3_str.str().c_str();
 
 	if(files >= 2) 
-		outfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".scores", (char *)"wt");
+		logfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *) ".bpmax.run.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	else
-		outfile = openfile(filenames[0], (char *)".scores", (char *)"wt");
+		logfile = openfile(filenames[0], (char *) ".bpmax.run.", var2_s, var3_s, (char *)"wt");
+
+	if(files >= 2) 
+		outfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *) ".scores.", var2_s, var3_s, (char *)"wt");
+	else
+		outfile = openfile(filenames[0], (char *) ".scores.", var2_s, var3_s, (char *)"wt");
 
 	if(files >= 2) 
 		fprintf(logfile, "bpmax %s ran on %s and %s at %s\n", PACKAGE_VERSION, seq[0]->getFileName(), seq[1]->getFileName(), ctime(&now));
@@ -165,7 +186,7 @@ BPMax::BPMax(int argc, char** argv)
 	fprintf(outfile, "#seq1\tseq2\tfull\tnormalized_full\tinteraction\tnormalized_interaction\n");
 }
 
-FILE * BPMax::openfile(char *fn, char *ext, char *type)
+FILE * BPMax::openfile(char *fn, char *ext, char *var2_s, char *var3_s, char *type)
 {
 	FILE *out;
 	char res[10000];
@@ -173,6 +194,9 @@ FILE * BPMax::openfile(char *fn, char *ext, char *type)
 	sprintf(res, "%s", fn);
 
 	strcat(res, ext);
+	strcat(res, var2_s);
+	strcat(res, "_");
+	strcat(res, var3_s);
 	if (!(out = fopen(res, type)))
 	{
 		perror(res);
@@ -181,7 +205,7 @@ FILE * BPMax::openfile(char *fn, char *ext, char *type)
 	return out;
 }
 
-FILE * BPMax::openfile(char *fn1, char *fn2, char *ext, char *type)
+FILE * BPMax::openfile(char *fn1, char *fn2, char *ext, char *var2_s, char *var3_s, char *type)
 {
 	FILE *out;
 	char res[10000];
@@ -189,6 +213,9 @@ FILE * BPMax::openfile(char *fn1, char *fn2, char *ext, char *type)
 	sprintf(res, "%s-%s", fn1, fn2);
 
 	strcat(res, ext);
+	strcat(res, var2_s);
+	strcat(res, "_");
+	strcat(res, var3_s);
 	if (!(out = fopen(res, type)))
 	{
 		perror(res);
