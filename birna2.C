@@ -266,6 +266,20 @@ void biRNA2::run()
 	//run interaction partition for top_sites
 	for(int s = 0; s < 2; s++)
 		Q[s] = unrestricted_Q[s];
+	
+	vector<tuple<double, int, int> > pair_score;		
+	for (int i = 0 ; i < top[0] ; i++)
+		char *sq_1 = seq[0]->getSeq() + get<1>top_sites[0];
+		for (int j = 0 ; j < top[1] ; j++)
+		{
+			char *sq_2 = seq[1]->getSeq() + get<1>top_sites[1];
+			double new_bpscore = compute(sq_1, sq_2);
+			pair_score.push_back(make_tuple(new_bpscore, w1, w2));
+			refresh_all();
+		}
+		
+	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
+
 
 	//compute(with the right parameters);	
 
@@ -285,22 +299,51 @@ void biRNA2::allocate_single(int s)
 
 }
 	
-void biRNA2::allocate()
+void biRNA2::allocate(int len_1, int len_2)
 {
 	if(!quiet) printf("Allocating memory for joint basepair partition function of %s and %s... \n", seq[0]->getName(), seq[1]->getName());
 
-	QI = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
-	QIa = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
-	QIac = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
+	QI = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
+	QIa = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
+	QIac = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
 	for(int i = 0; i < 2; i++)
 	{
-		QIs[i] = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
-		QIaux[i] = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
+		QIs[i] = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
+		QIaux[i] = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
 	}
-	QIe = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
-	QIm = new Table<double>(len1+1, len2+1, len1+1, len2+1, 0);
+	QIe = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
+	QIm = new Table<double>(len_1+1, len_2+1, len_1+1, len_2+1, 0);
 	if(!quiet) printf("Allocation and initialization finished. \n");
 }
+
+
+void biRNA2::refresh(Table<double> table, int len_1, int len_2)
+{
+	for (int i = 0 ; i < len_1+1 ; i++)
+		for (int j = 0 ; j < len_1+1 ; j++)
+			for (int k = 0 ; k < len_2+1 ; k++)
+				for (int l = 0 ; l < len_2+1 ; l++)
+				{
+					double *res = table->estar(i, k, j, l);
+					*res = 0.0;
+				}
+}
+
+
+void biRNA2::refresh_all(int len_1, int len_2)
+{
+	refresh(QI, len_1, len_2);
+	refresh(QIa, len_1, len_2);
+	refresh(QIc, len_1, len_2);
+	refresh(QIe, len_1, len_2);
+	refresh(QIm, len_1, len_2);
+	for(int i = 0; i < 2; i++)
+	{
+		refresh(QIs[i], len_1, len_2);
+		refresh(QIaux[i], len_1, len_2);
+	}
+}
+
 
 void biRNA2::compute_single(int s, int window_index) //length of window is in window[]
 {
@@ -334,22 +377,22 @@ void biRNA2::compute_single(int s, int window_index) //length of window is in wi
 		}
 }
 
-void biRNA2::compute()
+double biRNA2::compute(char* sq1, char* sq2)
 {
 	time_t now = time(NULL);
 
-	fprintf(logfile, "Calculating for %s and %s\n", seq[0]->getName(), seq[1]->getName());
-	if(!quiet) printf("Calculating for %s and %s\n", seq[0]->getName(), seq[1]->getName());
+	// fprintf(logfile, "Calculating for %s and %s\n", seq[0]->getName(), seq[1]->getName());
+	// if(!quiet) printf("Calculating for %s and %s\n", seq[0]->getName(), seq[1]->getName());
 
-	fprintf(outfile, "%s\t%s", seq[0]->getName(), seq[1]->getName());	
+	// fprintf(outfile, "%s\t%s", seq[0]->getName(), seq[1]->getName());	
 
-	sq1 = seq[0]->getSeq();
-	sq2 = seq[1]->getSeq();
+	// sq1 = seq[0]->getSeq();
+	// sq2 = seq[1]->getSeq();
 
 	int it = 0;
 
-	for(int l1 = 0; l1 <= len1; l1++)
-		for(int l2 = 0; l2 <= len2; l2++)
+	for(int l1 = 0; l1 <= window; l1++)
+		for(int l2 = 0; l2 <= window; l2++)
 		{
 			it++;
 
@@ -357,8 +400,8 @@ void biRNA2::compute()
 				printf("%d \n", it);	
 	
 #pragma omp parallel for num_threads(procNum)
-			for(int i1 = 0; i1 <= len1 - l1; i1++)
-				for(int i2 = 0; i2 <= len2 - l2; i2++)
+			for(int i1 = 0; i1 <= window - l1; i1++)
+				for(int i2 = 0; i2 <= window - l2; i2++)
 				{
 					register int j1 = i1 + l1 - 1;
 					register int j2 = i2 + l2 - 1;
@@ -434,16 +477,17 @@ void biRNA2::compute()
 
 		}		
 
-	if(!quiet)
-		printf("\t%e\t%e\t%e\t%g\t%g\t%g\t%g\n", QI->element(0, len1, 0, len2), Q[0]->element(0, len1), Q[1]->element(0, len2), -log(QI->element(0, len1, 0, len2)), -log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2)), log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2))/MIN(len1, len2), log(QI->element(0, len1, 0, len2))/(len1+len2));
+	//if(!quiet)
+	//	printf("\t%e\t%e\t%e\t%g\t%g\t%g\t%g\n", QI->element(0, len1, 0, len2), Q[0]->element(0, len1), Q[1]->element(0, len2), -log(QI->element(0, len1, 0, len2)), -log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2)), log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2))/MIN(len1, len2), log(QI->element(0, len1, 0, len2))/(len1+len2));
 
-	fprintf(logfile, "\t%e\t%e\t%e\t%g\t%g\t%g\t%g\n", QI->element(0, len1, 0, len2), Q[0]->element(0, len1), Q[1]->element(0, len2), -log(QI->element(0, len1, 0, len2)), -log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2)), log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2))/MIN(len1, len2), log(QI->element(0, len1, 0, len2))/(len1+len2));
+	//fprintf(logfile, "\t%e\t%e\t%e\t%g\t%g\t%g\t%g\n", QI->element(0, len1, 0, len2), Q[0]->element(0, len1), Q[1]->element(0, len2), -log(QI->element(0, len1, 0, len2)), -log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2)), log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2))/MIN(len1, len2), log(QI->element(0, len1, 0, len2))/(len1+len2));
 
-	fprintf(outfile, "\t%e\t%e\t%e\t%g\t%g\t%g\t%g\n", QI->element(0, len1, 0, len2), Q[0]->element(0, len1), Q[1]->element(0, len2), -log(QI->element(0, len1, 0, len2)), -log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2)), log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2))/MIN(len1, len2), log(QI->element(0, len1, 0, len2))/(len1+len2));
+	//fprintf(outfile, "\t%e\t%e\t%e\t%g\t%g\t%g\t%g\n", QI->element(0, len1, 0, len2), Q[0]->element(0, len1), Q[1]->element(0, len2), -log(QI->element(0, len1, 0, len2)), -log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2)), log(QI->element(0, len1, 0, len2) - Q[0]->element(0, len1)*Q[1]->element(0, len2))/MIN(len1, len2), log(QI->element(0, len1, 0, len2))/(len1+len2));
 
 
-	if(!quiet) printf("Running time: %ld seconds.\n", time(NULL) - now);
-	fprintf(logfile, "Running time: %ld seconds.\n", time(NULL) - now);
+	//if(!quiet) printf("Running time: %ld seconds.\n", time(NULL) - now);
+	//fprintf(logfile, "Running time: %ld seconds.\n", time(NULL) - now);
+	return QI->element(0, window, 0 window);
 }
 
 bool biRNA2::more_pairs()
