@@ -5,3 +5,7 @@ data
 examples
 *.swp
 tags
+*.run*
+*.parts*
+*.scores*
+
