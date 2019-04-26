@@ -56,8 +56,8 @@ biRNA2::biRNA2(int argc, char** argv)
 	current_seq = 0;
 	default_window[0] = default_window[1] = 20;
 	default_top[0] = default_top[1] = 50;
-	var2 = 2;
-	var3 = 1;
+	var2 = 0.5;
+	var3 = 1.0;
 
 	while (opts->hasNext())
 	{

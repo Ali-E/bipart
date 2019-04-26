@@ -60,8 +60,8 @@ BPPart::BPPart(int argc, char** argv)
 	files = 0;
 	seq_num = 0;
 	current_seq = 0;
-	var2 = 2;
-	var3 = 1;
+	var2 = 0.5;
+	var3 = 1.0;
 
 	while (opts->hasNext())
 	{

@@ -61,8 +61,8 @@ BPMax::BPMax(int argc, char** argv)
 	seq_num = 0;
 	current_seq = 0;
 
-	var2 = 2;
-	var3 = 3;
+	var2 = 1.0;
+	var3 = 1.5;
 
 	while (opts->hasNext())
 	{
