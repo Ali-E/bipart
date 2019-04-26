@@ -394,17 +394,17 @@ void BPMax::forward()
 
 	if(!quiet)
 	{ 
-		printf("Total score: %d\t", S[0]->element(0, len1-1));
-		printf("%d\t", S[1]->element(0, len2-1));
- 		printf("%d\n", F->element(0, len1-1, 0, len2-1));
- 		if(!backtr) printf("Interaction score: %d\n", C->element(0, len1-1, 0, len2-1));
+		printf("Total score: %f\t", S[0]->element(0, len1-1));
+		printf("%f\t", S[1]->element(0, len2-1));
+ 		printf("%f\n", F->element(0, len1-1, 0, len2-1));
+ 		if(!backtr) printf("Interaction score: %f\n", C->element(0, len1-1, 0, len2-1));
 	}	
-	fprintf(logfile, "Total score: %d\t", S[0]->element(0, len1-1));
-	fprintf(logfile, "%d\t", S[1]->element(0, len2-1));
- 	fprintf(logfile, "%d\n", F->element(0, len1-1, 0, len2-1));
- 	if(!backtr) fprintf(logfile, "Interaction score: %d\n", C->element(0, len1-1, 0, len2-1));
+	fprintf(logfile, "Total score: %f\t", S[0]->element(0, len1-1));
+	fprintf(logfile, "%f\t", S[1]->element(0, len2-1));
+ 	fprintf(logfile, "%f\n", F->element(0, len1-1, 0, len2-1));
+ 	if(!backtr) fprintf(logfile, "Interaction score: %f\n", C->element(0, len1-1, 0, len2-1));
 
-	fprintf(outfile, "\t%d\t%g", F->element(0, len1-1, 0, len2-1), F->element(0, len1-1, 0, len2-1)*1.0/(len1+len2));
+	fprintf(outfile, "\t%f\t%f\n", F->element(0, len1-1, 0, len2-1), F->element(0, len1-1, 0, len2-1)*1.0/(len1+len2));
 
 
 	if(!quiet) printf("Running time: %ld seconds.\n", time(NULL) - now);
