@@ -220,9 +220,7 @@ FILE * BPPart::openfile(char *fn1, char *fn2, char *ext, char *var2_s, char *var
 
 double BPPart::score(int a, int b, double var2, double var3)
 {
-	//int sc = scorer.intra_score(a, b);
-
-	double sc = scorer.intra_score(a, b, var2, var3);
+	double sc = scorer.intra_score(a, b, var2, var3, -std::numeric_limits<double>::infinity());
 
 	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
@@ -232,9 +230,7 @@ double BPPart::score(int a, int b, double var2, double var3)
 
 double BPPart::iscore(int a, int b, double var2, double var3)
 {
-	//int sc = scorer.inter_score(a, b);
-
-	double sc = scorer.inter_score(a, b, var2, var3);
+	double sc = scorer.inter_score(a, b, var2, var3, -std::numeric_limits<double>::infinity());
 
 	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
