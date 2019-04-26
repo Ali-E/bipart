@@ -146,6 +146,8 @@ private:
 
 	FILE *openfile(char *fn, char *, char *, char *, char *);
 	FILE *openfile(char *fn1, char *fn2, char *, char *, char *, char *);
+	double intra_score(int a, int b, double var2, double var3);
+	double inter_score(int a, int b, double var2, double var3);
 
 	void backtrace(int i, int j, int s, vector<Pair> *);
 	uint16_t backtrace(int i1, int j1, int i2, int j2, vector<Pair> *);

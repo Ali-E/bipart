@@ -224,6 +224,18 @@ FILE * BPMax::openfile(char *fn1, char *fn2, char *ext, char *var2_s, char *var3
 	return out;
 }
 
+double BPMax::intra_score(int a, int b, double var2, double var3)
+{
+	double sc = scorer.intra_score(a, b, var2, var3, 0);
+	return sc;
+}
+
+double BPMax::inter_score(int a, int b, double var2, double var3)
+{
+	double sc = scorer.inter_score(a, b, var2, var3, 0);
+	return sc;
+}
+
 void BPMax::forward()
 {
 	time_t now = time(NULL);
@@ -271,7 +283,7 @@ void BPMax::forward()
 						*res = n;
 				}
 
-				double n = scorer.intra_score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? j : (len2 - j - 1)], var2, var3) + S[s]->element(i+1, j-1);
+				double n = intra_score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? j : (len2 - j - 1)], var2, var3) + S[s]->element(i+1, j-1);
 				if(n > *res)
 					*res = n;
 			}
@@ -294,7 +306,7 @@ void BPMax::forward()
 			double *res = F->estar(i1, j1, i2, j2);
 			double *c = (!backtr) ? C->estar(i1, j1, i2, j2) : NULL;
 
-			*res = scorer.inter_score(sq1[i1], sq2[len2 - i2 - 1], var2, var3);
+			*res = inter_score(sq1[i1], sq2[len2 - i2 - 1], var2, var3);
 			if(!backtr) *c = *res;
 		}
 
@@ -369,7 +381,7 @@ void BPMax::forward()
 
 					if(j1 >= i1 + 4)
 					{
-						double n = scorer.intra_score(sq1[i1], sq1[j1], var2, var3) + F->element(i1+1, j1-1, i2, j2);						
+						double n = intra_score(sq1[i1], sq1[j1], var2, var3) + F->element(i1+1, j1-1, i2, j2);						
 
 						if(n > *res)
 						{
@@ -380,7 +392,7 @@ void BPMax::forward()
 				
 					if(j2 >= i2 + 4)
 					{
-						double n = scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1], var2, var3) + F->element(i1, j1, i2+1, j2-1);
+						double n = intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1], var2, var3) + F->element(i1, j1, i2+1, j2-1);
 
 						if(n > *res)
 						{
@@ -449,13 +461,13 @@ void BPMax::backtrace(int i, int j, int s, vector<Pair> *res)
 	if(debug)
 		printf("idx: %d\t%d\t%d\n", idx1, idx2, len2);
 
-	uint16_t n = scorer.intra_score(sq[idx1], sq[idx2]) + R->element(i+1, j-1);
+	uint16_t n = intra_score(sq[idx1], sq[idx2]) + R->element(i+1, j-1);
 	if(debug)
 		printf("val: %d\t%d\n", n, r);
 
 	if(n == r)
 	{
-		if(scorer.intra_score(sq[idx1], sq[idx2]) > 0)
+		if(intra_score(sq[idx1], sq[idx2]) > 0)
 		{
 			Pair p(idx1, idx2, (s == 0) ? INTRA1 : INTRA2);	
 			res->push_back(p);
@@ -538,11 +550,11 @@ uint16_t BPMax::backtrace(int i1, int j1, int i2, int j2, vector<Pair> *res)
 
 	if(j1 >= i1 + 4)
 	{
-		uint16_t n = scorer.intra_score(sq1[i1], sq1[j1]) + F->element(i1+1, j1-1, i2, j2);						
+		uint16_t n = intra_score(sq1[i1], sq1[j1]) + F->element(i1+1, j1-1, i2, j2);						
 
 		if(n == f)
 		{
-			if(scorer.intra_score(sq1[i1], sq1[j1]) > 0)
+			if(intra_score(sq1[i1], sq1[j1]) > 0)
 			{
 				Pair p(i1, j1, INTRA1);
 				res->push_back(p);
@@ -554,11 +566,11 @@ uint16_t BPMax::backtrace(int i1, int j1, int i2, int j2, vector<Pair> *res)
 				
 	if(j2 >= i2 + 4)
 	{
-		uint16_t n = scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) + F->element(i1, j1, i2+1, j2-1);						
+		uint16_t n = intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) + F->element(i1, j1, i2+1, j2-1);						
 
 		if(n == f)
 		{
-			if(scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) > 0)
+			if(intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) > 0)
 			{
 				Pair p(len2 - i2 - 1,  len2 - j2 - 1, INTRA2);
 				res->push_back(p);
