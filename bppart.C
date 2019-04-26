@@ -22,18 +22,18 @@ Copyright 2018  Hamidreza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: BPPart class drives the whole program. main() is here.
 
-	Author: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
+	Authors: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamidreza Chitsaz: Feb 26, 2019
-	Ver: 1.2
 */
 
 #include <math.h>
 #include <time.h>
-
+#include <string.h>
+#include <sstream>
 #include "bppart.h"
+#include <limits>
 
 int main(int argc, char** argv)
 {
@@ -60,6 +60,8 @@ BPPart::BPPart(int argc, char** argv)
 	files = 0;
 	seq_num = 0;
 	current_seq = 0;
+	var2 = 2;
+	var3 = 1;
 
 	while (opts->hasNext())
 	{
@@ -85,6 +87,10 @@ BPPart::BPPart(int argc, char** argv)
 			quiet = true;
       		else if (count == 'p')
 			procNum = atoi(current->getArg());
+		else if (count == 'M')
+			var2 = atof(current->getArg());
+		else if (count == 'N')
+			var3 = atof(current->getArg());
 	}
 
 	files = filenames.size();
@@ -140,16 +146,28 @@ BPPart::BPPart(int argc, char** argv)
 
 	time_t now = time(NULL);
 
+	std::ostringstream var2_str;
+        var2_str << var2;
+        std::string str_1 = var2_str.str();
+        char *var2_s = new char[str_1.length() + 1];
+        strcpy(var2_s, str_1.c_str());
+        //const char *var2_s = var2_str.str().c_str();
+
+        std::ostringstream var3_str;
+        var3_str << var3;
+        std::string str_2 = var3_str.str();
+        char *var3_s = new char[str_2.length() + 1];
+        strcpy(var3_s, str_2.c_str());
 
 	if(files >= 2) 
-		logfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".bppart.run", (char *)"wt");
+		logfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".bppart.run.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	else
-		logfile = openfile(filenames[0], (char *)".bppart.run", (char *)"wt");
+		logfile = openfile(filenames[0], (char *)".bppart.run.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 
 	if(files >= 2) 
-		outfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".parts", (char *)"wt");
+		outfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".parts.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	else
-		outfile = openfile(filenames[0], (char *)".parts", (char *)"wt");
+		outfile = openfile(filenames[0], (char *)".parts.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 
 	if(files >= 2) 
 		fprintf(logfile, "bppart %s ran on %s and %s at %s\n", PACKAGE_VERSION, seq[0]->getFileName(), seq[1]->getFileName(), ctime(&now));
@@ -163,7 +181,7 @@ BPPart::BPPart(int argc, char** argv)
 	fprintf(outfile, "#seq1\tseq2\tQI\tQ0\tQ1\t-log(QI)\t-log(QI-Q0*Q1)\tlog_interaction_normalized\tlog_full_normalized\n");
 }
 
-FILE * BPPart::openfile(char *fn, char *ext, char *type)
+FILE * BPPart::openfile(char *fn, char *ext, char *var2_s, char *var3_s, char *type)
 {
 	FILE *out;
 	char res[10000];
@@ -171,6 +189,9 @@ FILE * BPPart::openfile(char *fn, char *ext, char *type)
 	sprintf(res, "%s", fn);
 
 	strcat(res, ext);
+	strcat(res, var2_s);
+        strcat(res, "_");
+        strcat(res, var3_s);
 	if (!(out = fopen(res, type)))
 	{
 		perror(res);
@@ -179,14 +200,16 @@ FILE * BPPart::openfile(char *fn, char *ext, char *type)
 	return out;
 }
 
-FILE * BPPart::openfile(char *fn1, char *fn2, char *ext, char *type)
+FILE * BPPart::openfile(char *fn1, char *fn2, char *ext, char *var2_s, char *var3_s, char *type)
 {
 	FILE *out;
 	char res[10000];
 
 	sprintf(res, "%s-%s", fn1, fn2);
-
 	strcat(res, ext);
+	strcat(res, var2_s);
+        strcat(res, "_");
+        strcat(res, var3_s);
 	if (!(out = fopen(res, type)))
 	{
 		perror(res);
@@ -195,21 +218,25 @@ FILE * BPPart::openfile(char *fn1, char *fn2, char *ext, char *type)
 	return out;
 }
 
-double BPPart::score(int a, int b)
+double BPPart::score(int a, int b, double var2, double var3)
 {
-	int sc = scorer.intra_score(a, b);
+	//int sc = scorer.intra_score(a, b);
 
-	if(sc)
+	double sc = scorer.intra_score(a, b, var2, var3);
+
+	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
 	else
 		return 0;
 }
 
-double BPPart::iscore(int a, int b)
+double BPPart::iscore(int a, int b, double var2, double var3)
 {
-	int sc = scorer.inter_score(a, b);
+	//int sc = scorer.inter_score(a, b);
 
-	if(sc)
+	double sc = scorer.inter_score(a, b, var2, var3);
+
+	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
 	else
 		return 0;
@@ -272,7 +299,7 @@ void BPPart::compute()
 
 				for(int d = i+4; d <= j; d++)
 				{
-					double sc = score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? d : (len2 - d - 1)]);
+					double sc = score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? d : (len2 - d - 1)], var2, var3);
 
 					double n = Q[s]->element(i+1,d) * sc * Q[s]->element(d+1, j+1);
 
@@ -316,7 +343,7 @@ void BPPart::compute()
 						for(int k1 = i1+1; k1 <= j1-1; k1++)
 							*res += Q[0]->element(i1+1,k1) * QIaux[0]->element(k1, j1, i2, j2+1);
 
-						*res *= score(sq1[i1], sq1[j1]);
+						*res *= score(sq1[i1], sq1[j1], var2, var3);
 					}
 
 					res = QIs[1]->estar(i1, j1+1, i2, j2+1);
@@ -325,23 +352,22 @@ void BPPart::compute()
 						for(int k2 = i2+1; k2 <= j2-1; k2++)
 							*res += Q[1]->element(i2+1,k2) * QIaux[1]->element(i1, j1+1, k2, j2);
 
-						*res *= score(sq2[len2-i2-1], sq2[len2-j2-1]);
+						*res *= score(sq2[len2-i2-1], sq2[len2-j2-1], var2, var3);
 					}
 
 					res = QIm->estar(i1, j1+1, i2, j2+1);
 					if(i1 == j1 && i2 == j2)
-						*res = iscore(sq1[i1], sq2[len2-i2-1]);
+						*res = iscore(sq1[i1], sq2[len2-i2-1], var2, var3);
 					else
 						if(i1 < j1 && i2 < j2)
 						{
 							for(int k1 = i1+1; k1 <= j1; k1++)
 								for(int k2 = i2+1; k2 <= j2; k2++)
-									*res += (QIa->element(i1, k1, i2, k2) + QI->element(i1+1, k1, i2+1, k2) * iscore(sq1[i1], sq2[len2-i2-1])) * QIac->element(k1, j1+1, k2, j2+1);
+									*res += (QIa->element(i1, k1, i2, k2) + QI->element(i1+1, k1, i2+1, k2) * iscore(sq1[i1], sq2[len2-i2-1], var2, var3)) * QIac->element(k1, j1+1, k2, j2+1);
 
-							*res += QI->element(i1+1, j1, i2+1, j2) * iscore(sq1[i1], sq2[len2-i2-1]) * iscore(sq1[j1], sq2[len2-j2-1]) + 
-								iscore(sq1[j1], sq2[len2-j2-1]) * QIa->element(i1, j1, i2, j2);					
+							*res += QI->element(i1+1, j1, i2+1, j2) * iscore(sq1[i1], sq2[len2-i2-1], var2, var3) * iscore(sq1[j1], sq2[len2-j2-1], var2, var3) + 
+								iscore(sq1[j1], sq2[len2-j2-1], var2, var3) * QIa->element(i1, j1, i2, j2);					
 						}
-
 
 					res = QIaux[0]->estar(i1, j1+1, i2, j2+1);
 					for(int k1 = i1; k1 <= j1; k1++)
@@ -354,7 +380,7 @@ void BPPart::compute()
 
 					res = QIe->estar(i1, j1+1, i2, j2+1);
 					if(i1 <= j1-4 && i2 <= j2-4)
-						*res = (QI->element(i1+1, j1, i2+1, j2) - Q[0]->element(i1+1, j1)*Q[1]->element(i2+1, j2)) * score(sq1[i1], sq1[j1]) * score(sq2[len2-i2-1], sq2[len2-j2-1]);
+						*res = (QI->element(i1+1, j1, i2+1, j2) - Q[0]->element(i1+1, j1)*Q[1]->element(i2+1, j2)) * score(sq1[i1], sq1[j1], var2, var3) * score(sq2[len2-i2-1], sq2[len2-j2-1], var2, var3);
 
 					res = QIac->estar(i1, j1+1, i2, j2+1);
 					*res = QIs[0]->element(i1, j1+1, i2, j2+1) + QIs[1]->element(i1, j1+1, i2, j2+1) + QIe->element(i1, j1+1, i2, j2+1);
@@ -372,7 +398,7 @@ void BPPart::compute()
 					for(int k1 = i1; k1 <= j1; k1++)
 						for(int k2 = i2; k2 <= j2; k2++)
 							*res += Q[0]->element(i1, k1) * Q[1]->element(i2, k2) * 
-								(iscore(sq1[k1], sq2[len2-k2-1]) * QI->element(k1+1,j1+1,k2+1,j2+1) + QIa->element(k1,j1+1,k2,j2+1));
+								(iscore(sq1[k1], sq2[len2-k2-1], var2, var3) * QI->element(k1+1,j1+1,k2+1,j2+1) + QIa->element(k1,j1+1,k2,j2+1));
 
 				}
 

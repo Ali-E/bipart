@@ -22,12 +22,10 @@ Copyright 2018 Hamid Reza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: BPScore class calculates base pairing scores.
 
-	Author: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
+	Authors: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamidreza Chitsaz: Oct 20, 2018
-	Ver: 1.0
 */
 
 #ifndef BPSCORE_H
@@ -43,8 +41,8 @@ public:
 	BPScore() {};
 	~BPScore() {};
 
-	uint16_t intra_score(int a, int b);
-	uint16_t inter_score(int a, int b);
+	double intra_score(int a, int b, double var2, double var3);
+	double inter_score(int a, int b, double var2, double var3);
 };
 
 #endif

@@ -22,44 +22,46 @@ Copyright 2018  Hamidreza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: BPScore class calculates base pairing scores.
 
-	Author: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
+	Authors: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamidreza Chitsaz: Oct 20, 2018
-	Ver: 1.0
 */
 
 #include "bpscore.h"
 
-uint16_t BPScore::intra_score(int a, int b)
+double BPScore::intra_score(int a, int b, double var2, double var3)
 {
 	//[0-4] for [A,C,G,TU,N]
+	//var2: AU
+	//var3: GU
 
 	if((a == 0 && b == 3) || (a == 3 && b == 0))
-		return 2;
+		return var2;
 
 	if((a == 1 && b == 2) || (a == 2 && b == 1))
 		return 3;
 
 	if((a == 2 && b == 3) || (a == 3 && b == 2))
-		return 1;
+		return var3;
 
 	return 0;
 }
 
-uint16_t BPScore::inter_score(int a, int b)
+double BPScore::inter_score(int a, int b, double var2, double var3)
 {
 	//[0-4] for [A,C,G,TU,N]
+	//var2: AU
+	//var3: GU
 
 	if((a == 0 && b == 3) || (a == 3 && b == 0))
-		return 2;
+		return var2;
 
 	if((a == 1 && b == 2) || (a == 2 && b == 1))
 		return 3;
 
 	if((a == 2 && b == 3) || (a == 3 && b == 2))
-		return 1;
+		return var3;
 
 	return 0;
 }

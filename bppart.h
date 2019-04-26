@@ -60,6 +60,8 @@ Option OPTIONS[] = {
 	Option('d', (char *)"debug", NO_ARG, (char *)"debug"),
 	Option('p', (char *)"proc", NEEDS_ARG, (char *)"= number of CPUs"),
 	Option('q', (char *)"quiet", NO_ARG, (char *)"quiet mode"),
+	Option('M', (char *)"var2", NEEDS_ARG, (char *)"= var2"),
+	Option('N', (char *)"var3", NEEDS_ARG, (char *)"= var3"),
 	Option(0, NULL, 0, NULL)
 };
 
@@ -86,6 +88,8 @@ private:
 	vector<char *> filenames;
 	FILE *logfile, *outfile;
 
+	double var2;
+	double var3;
 	vector<Sequence *> seqs;
 	Sequence *seq[2];
 	int seq_num;
@@ -99,10 +103,10 @@ private:
 	char d2 = 2;
 	BPScore scorer;
 
-	FILE *openfile(char *fn, char *, char *);
-	FILE *openfile(char *fn1, char *fn2, char *, char *);
-	double score(int a, int b);
-	double iscore(int a, int b);
+	FILE *openfile(char *fn, char *, char *, char *, char *);
+	FILE *openfile(char *fn1, char *fn2, char *, char *, char *, char *);
+	double score(int a, int b, double var2, double var3);
+	double iscore(int a, int b, double var2, double var3);
 
 
 public:

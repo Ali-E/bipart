@@ -22,7 +22,7 @@ Copyright 2018  Hamidreza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: BPMax class drives the whole program. main() is here.
 
-	Author: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
+	Authors: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
@@ -237,7 +237,7 @@ void BPMax::forward()
 	{
 		if(!quiet) printf("Allocating memory for single basepair maximization of %s... \n", seq[i]->getName());
 		int sublen = seq[i]->getLen();
-		S[i] = new Table<uint16_t>(seq[i]->getLen(), sublen, &d2, 0);
+		S[i] = new Table<double>(seq[i]->getLen(), sublen, &d2, 0);
 		if(!quiet) printf("Allocation and initialization finished. \n");
 	}
 
@@ -246,8 +246,8 @@ void BPMax::forward()
 	len2 = seq[1]->getLen();
 	sublen1 = len1;
 	sublen2 = len2;
-	F = new Table<uint16_t>(len1, len2, sublen1, sublen2, 0);
-	if(!backtr) C = new Table<uint16_t>(len1, len2, sublen1, sublen2, 0);
+	F = new Table<double>(len1, len2, sublen1, sublen2, 0);
+	if(!backtr) C = new Table<double>(len1, len2, sublen1, sublen2, 0);
 	if(!quiet) printf("Allocation and initialization finished. \n");
 
 	for(int s = 0; s < 2; s++)
@@ -262,16 +262,16 @@ void BPMax::forward()
 			for(int i = 0; i <= len-l; i++)
 			{
 				int j = i + l - 1;
-				uint16_t *res = S[s]->estar(i, j);
+				double *res = S[s]->estar(i, j);
 
 				for(int d = i; d < j; d++)
 				{
-					uint16_t n = S[s]->element(i, d) + S[s]->element(d+1, j);
+					double n = S[s]->element(i, d) + S[s]->element(d+1, j);
 					if (n > *res)
 						*res = n;
 				}
 
-				uint16_t n = scorer.intra_score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? j : (len2 - j - 1)]) + S[s]->element(i+1, j-1);
+				double n = scorer.intra_score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? j : (len2 - j - 1)]) + S[s]->element(i+1, j-1);
 				if(n > *res)
 					*res = n;
 			}
@@ -291,8 +291,8 @@ void BPMax::forward()
 			int j1 = i1;
 			int j2 = i2;
 
-			uint16_t *res = F->estar(i1, j1, i2, j2);
-			uint16_t *c = (!backtr) ? C->estar(i1, j1, i2, j2) : NULL;
+			double *res = F->estar(i1, j1, i2, j2);
+			double *c = (!backtr) ? C->estar(i1, j1, i2, j2) : NULL;
 
 			*res = scorer.inter_score(sq1[i1], sq2[len2 - i2 - 1]);
 			if(!backtr) *c = *res;
@@ -314,13 +314,13 @@ void BPMax::forward()
 					int j1 = i1 + l1 - 1;
 					int j2 = i2 + l2 - 1;
 
-					uint16_t register *res = F->estar(i1, j1, i2, j2);
-					uint16_t register *c = (!backtr) ? C->estar(i1, j1, i2, j2) : NULL;
+					double register *res = F->estar(i1, j1, i2, j2);
+					double register *c = (!backtr) ? C->estar(i1, j1, i2, j2) : NULL;
 
 					for(int k1 = i1; k1 < j1; k1++)
 						for(int k2 = i2; k2 < j2; k2++)
 						{
-							uint16_t n = F->element(i1, k1, i2, k2) + F->element(k1+1, j1, k2+1, j2);
+							double n = F->element(i1, k1, i2, k2) + F->element(k1+1, j1, k2+1, j2);
 
 							if(n > *res)
 							{
@@ -331,7 +331,7 @@ void BPMax::forward()
 
 					for(int k1 = i1; k1 < j1; k1++)
 					{
-						uint16_t n = F->element(i1, k1, i2, j2) + S[0]->element(k1+1, j1);
+						double n = F->element(i1, k1, i2, j2) + S[0]->element(k1+1, j1);
 
 						if(n > *res)
 						{
@@ -350,7 +350,7 @@ void BPMax::forward()
 					
 					for(int k2 = i2; k2 < j2; k2++)
 					{
-						uint16_t n = F->element(i1, j1, i2, k2) + S[1]->element(k2+1, j2);
+						double n = F->element(i1, j1, i2, k2) + S[1]->element(k2+1, j2);
 
 						if(n > *res)
 						{
@@ -369,7 +369,7 @@ void BPMax::forward()
 
 					if(j1 >= i1 + 4)
 					{
-						uint16_t n = scorer.intra_score(sq1[i1], sq1[j1]) + F->element(i1+1, j1-1, i2, j2);						
+						double n = scorer.intra_score(sq1[i1], sq1[j1]) + F->element(i1+1, j1-1, i2, j2);						
 
 						if(n > *res)
 						{
@@ -380,7 +380,7 @@ void BPMax::forward()
 				
 					if(j2 >= i2 + 4)
 					{
-						uint16_t n = scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) + F->element(i1, j1, i2+1, j2-1);						
+						double n = scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) + F->element(i1, j1, i2+1, j2-1);						
 
 						if(n > *res)
 						{
@@ -411,7 +411,8 @@ void BPMax::forward()
 	fprintf(logfile, "Running time: %ld seconds.\n", time(NULL) - now);
 }
 
-
+/////////////////////////////////////////////////////////////////////
+/*
 void BPMax::backtrace(int i, int j, int s, vector<Pair> *res)
 {
 	if(j < i + 4)
@@ -623,7 +624,7 @@ void BPMax::backtrace()
 	if(!quiet) printf("Running time: %ld seconds.\n", time(NULL) - now);
 	fprintf(logfile, "Running time: %ld seconds.\n", time(NULL) - now);
 }
-
+*/
 bool BPMax::more_pairs()
 {
 	return(current_seq < seq_num);
@@ -653,7 +654,7 @@ BPMax::~BPMax()
 	fclose(outfile);
 }
 
-
+/*
 void tableTest(unsigned int len1, unsigned int len2, unsigned int sublen1, unsigned int sublen2)
 {
 //	printf("2d %d %d\n", sublen1, sublen2);
@@ -715,7 +716,7 @@ void tableTest(unsigned int len1, unsigned int len2, unsigned int sublen1, unsig
 
 	delete Qd;
 }
-
+*/
 /*int main(int argc, char** argv)
 {
 	for(int i=1; i <= 20; i++)

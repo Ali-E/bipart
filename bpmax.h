@@ -22,12 +22,10 @@ Copyright 2018 Hamid Reza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: BPMax class drives the whole program.
 
-	Author: Hamid Reza Chitsaz
+	Authors: Hamid Reza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamid Reza Chitsaz: Oct 20, 2018
-	Ver: 1.3
 */
 
 #ifndef BPMAX_H
@@ -61,6 +59,8 @@ Option OPTIONS[] = {
 	Option('n', (char *)"nobacktrace", NO_ARG, (char *)"do not perform backtracing"),
 	Option('p', (char *)"proc", NEEDS_ARG, (char *)"= number of CPUs"),
 	Option('q', (char *)"quiet", NO_ARG, (char *)"quiet mode"),
+	Option('M', (char *)"var2", NEEDS_ARG, (char *)"= var2"),
+	Option('N', (char *)"var3", NEEDS_ARG, (char *)"= var3"),
 	Option(0, NULL, 0, NULL)
 };
 
@@ -128,6 +128,9 @@ private:
 	vector<char *> filenames;
 	FILE *logfile, *outfile;
 
+	double var2;
+	double var3;
+
 	vector<Sequence *> seqs;
 	Sequence *seq[2];
 	int seq_num;
@@ -137,12 +140,12 @@ private:
 	int current_seq;
 
 
-	Table<uint16_t> *S[2], *F, *C;
+	Table<double> *S[2], *F, *C;
 	char d2 = 2;
 	BPScore scorer;
 
-	FILE *openfile(char *fn, char *, char *);
-	FILE *openfile(char *fn1, char *fn2, char *, char *);
+	FILE *openfile(char *fn, char *, char *, char *, char *);
+	FILE *openfile(char *fn1, char *fn2, char *, char *, char *, char *);
 
 	void backtrace(int i, int j, int s, vector<Pair> *);
 	uint16_t backtrace(int i1, int j1, int i2, int j2, vector<Pair> *);
