@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	{
 		bp.advance();
 		bp.forward();
-		bp.backtrace();
+		//bp.backtrace();
 		bp.release();
 	}
 }
@@ -271,7 +271,7 @@ void BPMax::forward()
 						*res = n;
 				}
 
-				double n = scorer.intra_score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? j : (len2 - j - 1)]) + S[s]->element(i+1, j-1);
+				double n = scorer.intra_score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? j : (len2 - j - 1)], var2, var3) + S[s]->element(i+1, j-1);
 				if(n > *res)
 					*res = n;
 			}
@@ -294,7 +294,7 @@ void BPMax::forward()
 			double *res = F->estar(i1, j1, i2, j2);
 			double *c = (!backtr) ? C->estar(i1, j1, i2, j2) : NULL;
 
-			*res = scorer.inter_score(sq1[i1], sq2[len2 - i2 - 1]);
+			*res = scorer.inter_score(sq1[i1], sq2[len2 - i2 - 1], var2, var3);
 			if(!backtr) *c = *res;
 		}
 
@@ -369,7 +369,7 @@ void BPMax::forward()
 
 					if(j1 >= i1 + 4)
 					{
-						double n = scorer.intra_score(sq1[i1], sq1[j1]) + F->element(i1+1, j1-1, i2, j2);						
+						double n = scorer.intra_score(sq1[i1], sq1[j1], var2, var3) + F->element(i1+1, j1-1, i2, j2);						
 
 						if(n > *res)
 						{
@@ -380,7 +380,7 @@ void BPMax::forward()
 				
 					if(j2 >= i2 + 4)
 					{
-						double n = scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1]) + F->element(i1, j1, i2+1, j2-1);						
+						double n = scorer.intra_score(sq2[len2 - i2 - 1], sq2[len2 - j2 - 1], var2, var3) + F->element(i1, j1, i2+1, j2-1);
 
 						if(n > *res)
 						{

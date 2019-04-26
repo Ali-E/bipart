@@ -26,8 +26,6 @@ Copyright 2019 Hamid Reza Chitsaz (chitsaz@chitsazlab.org)
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamid Reza Chitsaz: Oct 26, 2018
-	Ver: 1.1
 */
 
 #ifndef BIRNA2_H
@@ -63,6 +61,8 @@ Option OPTIONS[] = {
 	Option('d', (char *)"debug", NO_ARG, (char *)"debug"),
 	Option('p', (char *)"proc", NEEDS_ARG, (char *)"= number of CPUs"),
 	Option('q', (char *)"quiet", NO_ARG, (char *)"quiet mode"),
+	Option('M', (char *)"var2", NEEDS_ARG, (char *)"= var2"),
+	Option('N', (char *)"var3", NEEDS_ARG, (char *)"= var3"),
 	Option(1, (char *)"window1", NEEDS_ARG, (char *)"= length of binding site in the first sequence"),
 	Option(2, (char *)"window2", NEEDS_ARG, (char *)"= length of binding site in the second sequence"),
 	Option(3, (char *)"top1", NEEDS_ARG, (char *)"= number of top unpaired sites in the first sequence"),
@@ -93,6 +93,8 @@ private:
 	vector<char *> filenames;
 	FILE *logfile, *outfile;
 
+	double var2;
+	double var3;
 	vector<Sequence *> seqs;
 	Sequence *seq[2];
 	int seq_num;
@@ -110,8 +112,8 @@ private:
 
 	FILE *openfile(char *fn, char *, char *);
 	FILE *openfile(char *fn1, char *fn2, char *, char *);
-	double score(int a, int b);
-	double iscore(int a, int b);
+	double score(int a, int b, double var2, double var3);
+	double iscore(int a, int b, double var2, double var3);
 
 
 public:

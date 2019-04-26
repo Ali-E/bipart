@@ -26,8 +26,6 @@ Copyright 2018 Hamid Reza Chitsaz (chitsaz@chitsazlab.org)
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamid Reza Chitsaz: Oct 26, 2018
-	Ver: 1.1
 */
 
 #ifndef BPPART_H

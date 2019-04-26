@@ -22,18 +22,18 @@ Copyright 2019  Hamidreza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: biRNA2 class drives the whole program. main() is here.
 
-	Author: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
+	Authors: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
-	Last Update by Hamidreza Chitsaz: Feb 26, 2019
-	Ver: 1.2
 */
 
 #include <math.h>
 #include <time.h>
-
+#include <string.h>
+#include <sstream>
 #include "birna2.h"
+#include <limits>
 
 int main(int argc, char** argv)
 {
@@ -56,6 +56,8 @@ biRNA2::biRNA2(int argc, char** argv)
 	current_seq = 0;
 	default_window[0] = default_window[1] = 20;
 	default_top[0] = default_top[1] = 50;
+	var2 = 2;
+	var3 = 1;
 
 	while (opts->hasNext())
 	{
@@ -81,6 +83,10 @@ biRNA2::biRNA2(int argc, char** argv)
 			quiet = true;
       		else if (count == 'p')
 			procNum = atoi(current->getArg());
+		else if (count == 'M')
+			var2 = atof(current->getArg());
+		else if (count == 'N')
+			var3 = atof(current->getArg());
       		else if (count == 1)
 			default_window[0] = atoi(current->getArg());
       		else if (count == 2)
@@ -199,9 +205,9 @@ FILE * biRNA2::openfile(char *fn1, char *fn2, char *ext, char *type)
 	return out;
 }
 
-double biRNA2::score(int a, int b)
+double biRNA2::score(int a, int b, double var2, double var3)
 {
-	double sc = scorer.intra_score(a, b);
+	double sc = scorer.intra_score(a, b, var2, var3);
 
 	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
@@ -209,9 +215,9 @@ double biRNA2::score(int a, int b)
 		return 0;
 }
 
-double biRNA2::iscore(int a, int b)
+double biRNA2::iscore(int a, int b, double var2, double var3)
 {
-	int sc = scorer.inter_score(a, b);
+	double sc = scorer.inter_score(a, b, var2, var3);
 
 	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
@@ -363,7 +369,7 @@ void biRNA2::compute_single(int s, int window_index) //length of window is in wi
 
 			for(int d = i+4; d <= j; d++)
 			{
-				double sc = score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? d : (len2 - d - 1)]);
+				double sc = score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? d : (len2 - d - 1)], var2, var3);
 
 				if(window_index != -1) //restricted
 					if((window_index <= i && i < window_index + window[s]) || (window_index <= d && d < window_index + window[s]))
@@ -419,7 +425,7 @@ double biRNA2::compute(char* sq1, char* sq2)
 						for(int k1 = i1+1; k1 <= j1-1; k1++)
 							*res += Q[0]->element(i1+1,k1) * QIaux[0]->element(k1, j1, i2, j2+1);
 
-						*res *= score(sq1[i1], sq1[j1]);
+						*res *= score(sq1[i1], sq1[j1], var2, var3);
 					}
 
 					res = QIs[1]->estar(i1, j1+1, i2, j2+1);
@@ -428,23 +434,22 @@ double biRNA2::compute(char* sq1, char* sq2)
 						for(int k2 = i2+1; k2 <= j2-1; k2++)
 							*res += Q[1]->element(i2+1,k2) * QIaux[1]->element(i1, j1+1, k2, j2);
 
-						*res *= score(sq2[len2-i2-1], sq2[len2-j2-1]);
+						*res *= score(sq2[len2-i2-1], sq2[len2-j2-1], var2, var3);
 					}
 
 					res = QIm->estar(i1, j1+1, i2, j2+1);
 					if(i1 == j1 && i2 == j2)
-						*res = iscore(sq1[i1], sq2[len2-i2-1]);
+						*res = iscore(sq1[i1], sq2[len2-i2-1], var2, var3);
 					else
 						if(i1 < j1 && i2 < j2)
 						{
 							for(int k1 = i1+1; k1 <= j1; k1++)
 								for(int k2 = i2+1; k2 <= j2; k2++)
-									*res += (QIa->element(i1, k1, i2, k2) + QI->element(i1+1, k1, i2+1, k2) * iscore(sq1[i1], sq2[len2-i2-1])) * QIac->element(k1, j1+1, k2, j2+1);
+									*res += (QIa->element(i1, k1, i2, k2) + QI->element(i1+1, k1, i2+1, k2) * iscore(sq1[i1], sq2[len2-i2-1], var2, var3)) * QIac->element(k1, j1+1, k2, j2+1);
 
-							*res += QI->element(i1+1, j1, i2+1, j2) * iscore(sq1[i1], sq2[len2-i2-1]) * iscore(sq1[j1], sq2[len2-j2-1]) + 
-								iscore(sq1[j1], sq2[len2-j2-1]) * QIa->element(i1, j1, i2, j2);					
+							*res += QI->element(i1+1, j1, i2+1, j2) * iscore(sq1[i1], sq2[len2-i2-1], var2, var3) * iscore(sq1[j1], sq2[len2-j2-1], var2, var3) + 
+								iscore(sq1[j1], sq2[len2-j2-1], var2, var3) * QIa->element(i1, j1, i2, j2);					
 						}
-
 
 					res = QIaux[0]->estar(i1, j1+1, i2, j2+1);
 					for(int k1 = i1; k1 <= j1; k1++)
@@ -457,7 +462,7 @@ double biRNA2::compute(char* sq1, char* sq2)
 
 					res = QIe->estar(i1, j1+1, i2, j2+1);
 					if(i1 <= j1-4 && i2 <= j2-4)
-						*res = (QI->element(i1+1, j1, i2+1, j2) - Q[0]->element(i1+1, j1)*Q[1]->element(i2+1, j2)) * score(sq1[i1], sq1[j1]) * score(sq2[len2-i2-1], sq2[len2-j2-1]);
+						*res = (QI->element(i1+1, j1, i2+1, j2) - Q[0]->element(i1+1, j1)*Q[1]->element(i2+1, j2)) * score(sq1[i1], sq1[j1], var2, var3) * score(sq2[len2-i2-1], sq2[len2-j2-1], var2, var3);
 
 					res = QIac->estar(i1, j1+1, i2, j2+1);
 					*res = QIs[0]->element(i1, j1+1, i2, j2+1) + QIs[1]->element(i1, j1+1, i2, j2+1) + QIe->element(i1, j1+1, i2, j2+1);
@@ -475,7 +480,7 @@ double biRNA2::compute(char* sq1, char* sq2)
 					for(int k1 = i1; k1 <= j1; k1++)
 						for(int k2 = i2; k2 <= j2; k2++)
 							*res += Q[0]->element(i1, k1) * Q[1]->element(i2, k2) * 
-								(iscore(sq1[k1], sq2[len2-k2-1]) * QI->element(k1+1,j1+1,k2+1,j2+1) + QIa->element(k1,j1+1,k2,j2+1));
+								(iscore(sq1[k1], sq2[len2-k2-1], var2, var3) * QI->element(k1+1,j1+1,k2+1,j2+1) + QIa->element(k1,j1+1,k2,j2+1));
 
 				}
 
