@@ -269,15 +269,19 @@ void biRNA2::run()
 	
 	vector<tuple<double, int, int> > pair_score;		
 	for (int i = 0 ; i < top[0] ; i++)
-		char *sq_1 = seq[0]->getSeq() + get<1>top_sites[0];
+	{
+		int w1 = get<1>(top_sites[0].at(i));
+		char *sq_1 = (char *) seq[0]->getSeq() + w1;
 		for (int j = 0 ; j < top[1] ; j++)
 		{
-			char *sq_2 = seq[1]->getSeq() + get<1>top_sites[1];
+			int w2 = get<1>(top_sites[1].at(j));
+			char *sq_2 = (char *) seq[1]->getSeq() + w2;
 			double new_bpscore = compute(sq_1, sq_2);
 			pair_score.push_back(make_tuple(new_bpscore, w1, w2));
-			refresh_all();
+			refresh_all(window[0], window[1]);
 		}
-		
+	}	
+
 	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
 
 
@@ -317,7 +321,7 @@ void biRNA2::allocate(int len_1, int len_2)
 }
 
 
-void biRNA2::refresh(Table<double> table, int len_1, int len_2)
+void biRNA2::refresh(Table<double> *table, int len_1, int len_2)
 {
 	for (int i = 0 ; i < len_1+1 ; i++)
 		for (int j = 0 ; j < len_1+1 ; j++)
@@ -334,7 +338,7 @@ void biRNA2::refresh_all(int len_1, int len_2)
 {
 	refresh(QI, len_1, len_2);
 	refresh(QIa, len_1, len_2);
-	refresh(QIc, len_1, len_2);
+	refresh(QIac, len_1, len_2);
 	refresh(QIe, len_1, len_2);
 	refresh(QIm, len_1, len_2);
 	for(int i = 0; i < 2; i++)
@@ -391,8 +395,8 @@ double biRNA2::compute(char* sq1, char* sq2)
 
 	int it = 0;
 
-	for(int l1 = 0; l1 <= window; l1++)
-		for(int l2 = 0; l2 <= window; l2++)
+	for(int l1 = 0; l1 <= window[0]; l1++)
+		for(int l2 = 0; l2 <= window[1]; l2++)
 		{
 			it++;
 
@@ -400,8 +404,8 @@ double biRNA2::compute(char* sq1, char* sq2)
 				printf("%d \n", it);	
 	
 #pragma omp parallel for num_threads(procNum)
-			for(int i1 = 0; i1 <= window - l1; i1++)
-				for(int i2 = 0; i2 <= window - l2; i2++)
+			for(int i1 = 0; i1 <= window[0] - l1; i1++)
+				for(int i2 = 0; i2 <= window[1] - l2; i2++)
 				{
 					register int j1 = i1 + l1 - 1;
 					register int j2 = i2 + l2 - 1;
@@ -487,7 +491,7 @@ double biRNA2::compute(char* sq1, char* sq2)
 
 	//if(!quiet) printf("Running time: %ld seconds.\n", time(NULL) - now);
 	//fprintf(logfile, "Running time: %ld seconds.\n", time(NULL) - now);
-	return QI->element(0, window, 0 window);
+	return QI->element(0, window[0], 0, window[1]);
 }
 
 bool biRNA2::more_pairs()

@@ -119,8 +119,11 @@ public:
 	~biRNA2();
 	void allocate_single(int);
 	void allocate();
+	void allocate(int, int);
+	void refresh(Table<double> *, int, int);
+	void refresh_all(int, int);
 	void compute_single(int, int);
-	void compute();
+	double compute(char *, char *);
 	void release_single(int);
 	void release();
 	bool more_pairs();
