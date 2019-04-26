@@ -207,7 +207,7 @@ FILE * biRNA2::openfile(char *fn1, char *fn2, char *ext, char *type)
 
 double biRNA2::score(int a, int b, double var2, double var3)
 {
-	double sc = scorer.intra_score(a, b, var2, var3);
+	double sc = scorer.intra_score(a, b, var2, var3, -std::numeric_limits<double>::infinity());
 
 	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
@@ -217,7 +217,7 @@ double biRNA2::score(int a, int b, double var2, double var3)
 
 double biRNA2::iscore(int a, int b, double var2, double var3)
 {
-	double sc = scorer.inter_score(a, b, var2, var3);
+	double sc = scorer.inter_score(a, b, var2, var3, -std::numeric_limits<double>::infinity());
 
 	if(sc != -std::numeric_limits<double>::infinity())
 		return exp(sc);
@@ -274,6 +274,7 @@ void biRNA2::run()
 		Q[s] = unrestricted_Q[s];
 	
 	vector<tuple<double, int, int> > pair_score;		
+	allocate(window[0], window[1]);
 	for (int i = 0 ; i < top[0] ; i++)
 	{
 		int w1 = get<1>(top_sites[0].at(i));
@@ -281,12 +282,13 @@ void biRNA2::run()
 		for (int j = 0 ; j < top[1] ; j++)
 		{
 			int w2 = get<1>(top_sites[1].at(j));
-			char *sq_2 = (char *) seq[1]->getSeq() + w2;
+			char *sq_2 = (char *) seq[1]->getSeq() + len2 - w2 -window[1];
 			double new_bpscore = compute(sq_1, sq_2);
 			pair_score.push_back(make_tuple(new_bpscore, w1, w2));
 			refresh_all(window[0], window[1]);
 		}
 	}	
+	release();
 
 	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
 
