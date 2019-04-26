@@ -8,4 +8,4 @@ tags
 *.run*
 *.parts*
 *.scores*
-
+*.o
