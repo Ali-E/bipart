@@ -30,7 +30,7 @@ Copyright 2018  Hamidreza Chitsaz (chitsaz@chitsazlab.org)
 
 #include "bpscore.h"
 
-double BPScore::intra_score(int a, int b, double var2, double var3)
+double BPScore::intra_score(int a, int b, double var2, double var3, double no_interact_value)
 {
 	//[0-4] for [A,C,G,TU,N]
 	//var2: AU
@@ -45,10 +45,10 @@ double BPScore::intra_score(int a, int b, double var2, double var3)
 	if((a == 2 && b == 3) || (a == 3 && b == 2))
 		return var3;
 
-	return 0;
+	return no_interact_value;
 }
 
-double BPScore::inter_score(int a, int b, double var2, double var3)
+double BPScore::inter_score(int a, int b, double var2, double var3, double no_interact_value)
 {
 	//[0-4] for [A,C,G,TU,N]
 	//var2: AU
@@ -63,7 +63,7 @@ double BPScore::inter_score(int a, int b, double var2, double var3)
 	if((a == 2 && b == 3) || (a == 3 && b == 2))
 		return var3;
 
-	return 0;
+	return no_interact_value;
 }
 
 

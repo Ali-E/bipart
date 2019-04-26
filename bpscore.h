@@ -41,8 +41,8 @@ public:
 	BPScore() {};
 	~BPScore() {};
 
-	double intra_score(int a, int b, double var2, double var3);
-	double inter_score(int a, int b, double var2, double var3);
+	double intra_score(int a, int b, double var2, double var3, double no_interact_value);
+	double inter_score(int a, int b, double var2, double var3, double no_interact_value);
 };
 
 #endif
