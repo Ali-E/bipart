@@ -242,8 +242,6 @@ void biRNA2::run()
 	
 	vector<tuple<double, int>> top_sites[2];
 
-	printf("preparation is done!\n");
-
 	for(int s = 0; s < 2; s++)
 	{
 		vector<tuple<double, int>> unpairing_part;
@@ -271,8 +269,6 @@ void biRNA2::run()
 			top_sites[s].push_back(unpairing_part[unpairing_part.size()-i-1]);
 	}
 
-	printf("computing the single stranded info is done!\n");
-
 	//run interaction partition for top_sites
 	for(int s = 0; s < 2; s++)
 		Q[s] = unrestricted_Q[s];
@@ -286,9 +282,6 @@ void biRNA2::run()
 	double single_prob_1, single_prob_2;
 	double single_score_1, single_score_2;
 
-	printf("going to compute pairs...\n");
-	fflush(stdout);
-
 	for (int i = 0 ; i < top[0] ; i++)
 	{
 		int w1 = get<1>(top_sites[0].at(i));
@@ -300,24 +293,16 @@ void biRNA2::run()
 		// To be checked!
 		single_score_1 = Q[0]->element(w1, w1+window[0]);
 		
-		printf("1\n");
-		fflush(stdout);
-		
 		for (int j = 0 ; j < top[1] ; j++)
 		{
 			int w2 = get<1>(top_sites[1].at(j));
 			char *sq_2 = (char *) seq[1]->getSeq() + len2 - w2 -window[1];
-
-			printf("2\n");
-			fflush(stdout);
 
 			single_unpaired_2 = get<0>(top_sites[1].at(j));
 			single_prob_2 = single_unpaired_2 / Q[1]->element(0, seq[1]->getLen());
 			
 			single_score_2 = Q[1]->element(w2, w2+window[1]);
 			
-			printf("3\n");
-			fflush(stdout);
 			// Q of interaction:
 			double new_bpscore = compute(sq_1, sq_2);
 
@@ -327,14 +312,9 @@ void biRNA2::run()
 			double prob_mul = interaction_prob * single_prob_1  * single_prob_2;
 			pair_score.push_back(make_tuple(prob_mul, w1, w2));
 
-			printf("4\n");
-			fflush(stdout);
-
 			//refresh_all(window[0], window[1]);
 			release();
 			allocate(window[0], window[1]);
-			printf("5\n");
-			fflush(stdout);
 		}
 	}	
 	release();
@@ -393,8 +373,6 @@ void biRNA2::refresh(Table<double>* table, int len_1, int len_2)
 void biRNA2::refresh_all(int len_1, int len_2)
 {
 	refresh(QI, len_1, len_2);
-	printf("44\n");
-	fflush(stdout);
 	refresh(QIa, len_1, len_2);
 	refresh(QIac, len_1, len_2);
 	refresh(QIe, len_1, len_2);
