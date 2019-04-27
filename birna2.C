@@ -278,7 +278,8 @@ void biRNA2::run()
 		{
 			allocate_single(s);
 			compute_single(s, w); //if window_index == -1 then compute unrestricted
-			double result = Q[s]->element(0, seq[s]->getLen()); // record unrestricted Q's
+			// double result = Q[s]->element(0, seq[s]->getLen()); // record unrestricted Q's
+			double result = log(Q[s]->element(0, seq[s]->getLen())); // record unrestricted Q's
 			if(w == -1)
 			{
 				//keep the entire table for unrestricted
@@ -318,7 +319,7 @@ void biRNA2::run()
 	double single_score_1, single_score_2;
 
 	outfile = openfile(seq[0]->getName(), (char *)".bi_paired_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
-	fprintf(outfile, "win_size1\twin_size2\tstart1\tstart2\tunpaired_score_1\tunpaired_score_2\tsingle_score_1\tsignle_score_2\tpair_score\n");
+	fprintf(outfile, "win_size1\twin_size2\tstart1\tstart2\tunpaired_score_1\tunpaired_score_2\tsingle_score_1\tsignle_score_2\tinteraction_prob\tpair_score\n");
 	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), Q[0]->element(0, seq[0]->getLen()), Q[1]->element(0, seq[1]->getLen()));
 
 	for (int i = 0 ; i < top[0] ; i++)
@@ -330,7 +331,8 @@ void biRNA2::run()
 		char *sq_1 = (char *) seq[0]->getSeq() + w1;
 		
 		single_unpaired_1 = get<0>(top_sites[0].at(i));
-		single_prob_1 = single_unpaired_1 / Q[0]->element(0, seq[0]->getLen());
+		//single_prob_1 = single_unpaired_1 / Q[0]->element(0, seq[0]->getLen());
+		single_prob_1 = single_unpaired_1 - log(Q[0]->element(0, seq[0]->getLen()));
 	
 		// To be checked!
 		single_score_1 = Q[0]->element(w1, w1+window[0]);
@@ -341,7 +343,8 @@ void biRNA2::run()
 			char *sq_2 = (char *) seq[1]->getSeq() + len2 - w2 -window[1];
 
 			single_unpaired_2 = get<0>(top_sites[1].at(j));
-			single_prob_2 = single_unpaired_2 / Q[1]->element(0, seq[1]->getLen());
+			//single_prob_2 = single_unpaired_2 / Q[1]->element(0, seq[1]->getLen());
+			single_prob_2 = single_unpaired_2 - log(Q[1]->element(0, seq[1]->getLen()));
 			
 			single_score_2 = Q[1]->element(w2, w2+window[1]);
 			
@@ -351,10 +354,11 @@ void biRNA2::run()
 			// Probability of no interaction:
 			double interaction_prob = 1.0 - (single_score_1 * single_score_2) / new_bpscore;
 
-			double prob_mul = interaction_prob * single_prob_1  * single_prob_2;
+			// double prob_mul = interaction_prob * single_prob_1  * single_prob_2;
+			double prob_mul = log(interaction_prob) + single_prob_1 + single_prob_2;
 			pair_score.push_back(make_tuple(prob_mul, w1, w2));
 			
-			fprintf(outfile, "%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\n", window[0], window[1], w1, w2, single_unpaired_1, single_unpaired_2, single_score_1, single_score_2, prob_mul);
+			fprintf(outfile, "%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n", window[0], window[1], w1, w2, single_unpaired_1, single_unpaired_2, single_score_1, single_score_2, interaction_prob, prob_mul);
 
 			//refresh_all(window[0], window[1]);
 			release();
