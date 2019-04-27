@@ -150,16 +150,30 @@ biRNA2::biRNA2(int argc, char** argv)
 
 	time_t now = time(NULL);
 
+	std::ostringstream var2_str;
+        var2_str << var2;
+        std::string str_1 = var2_str.str();
+        var2_s = new char[str_1.length() + 1];
+        strcpy(var2_s, str_1.c_str());
+        //const char *var2_s = var2_str.str().c_str();
+
+        std::ostringstream var3_str;
+        var3_str << var3;
+        std::string str_2 = var3_str.str();
+        var3_s = new char[str_2.length() + 1];
+        strcpy(var3_s, str_2.c_str());
 
 	if(files >= 2) 
-		logfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".birna2.run", (char *)"wt");
+		logfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".birna2.run", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	else
-		logfile = openfile(filenames[0], (char *)".birna2.run", (char *)"wt");
+		logfile = openfile(filenames[0], (char *)".birna2.run", (char *) var2_s, (char *) var3_s, (char *)"wt");
 
-	if(files >= 2) 
-		outfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".sites", (char *)"wt");
-	else
-		outfile = openfile(filenames[0], (char *)".sites", (char *)"wt");
+	//if(files >= 2) 
+	//	outfile = openfile(seq[0]->getFileName(), seq[1]->getFileName(), (char *)".sites", (char *) var2_s, (char *) var3_s, (char *)"wt");
+	//else
+	//	outfile = openfile(filenames[0], (char *)".sites", (char *) var2_s, (char *) var3_s, (char *)"wt");
+
+	name_file = openfile(filenames[0], (char *)".birna2.filenames.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 
 	if(files >= 2) 
 		fprintf(logfile, "birna2 %s ran on %s and %s at %s\n", PACKAGE_VERSION, seq[0]->getFileName(), seq[1]->getFileName(), ctime(&now));
@@ -173,7 +187,7 @@ biRNA2::biRNA2(int argc, char** argv)
 	fprintf(outfile, "#seq1\tseq2\tQI\tQ0\tQ1\t-log(QI)\t-log(QI-Q0*Q1)\tlog_interaction_normalized\tlog_full_normalized\n");
 }
 
-FILE * biRNA2::openfile(char *fn, char *ext, char *type)
+FILE * biRNA2::openfile(char *fn, char *ext, char *var2_s, char *var3_s, char *type)
 {
 	FILE *out;
 	char res[10000];
@@ -181,6 +195,10 @@ FILE * biRNA2::openfile(char *fn, char *ext, char *type)
 	sprintf(res, "%s", fn);
 
 	strcat(res, ext);
+	strcat(res, var2_s);
+
+        strcat(res, "_");
+        strcat(res, var3_s);
 	if (!(out = fopen(res, type)))
 	{
 		perror(res);
@@ -189,14 +207,16 @@ FILE * biRNA2::openfile(char *fn, char *ext, char *type)
 	return out;
 }
 
-FILE * biRNA2::openfile(char *fn1, char *fn2, char *ext, char *type)
+FILE * biRNA2::openfile(char *fn1, char *fn2, char *ext, char *var2_s, char *var3_s, char *type)
 {
 	FILE *out;
 	char res[10000];
 
 	sprintf(res, "%s-%s", fn1, fn2);
-
 	strcat(res, ext);
+	strcat(res, var2_s);
+        strcat(res, "_");
+        strcat(res, var3_s);
 	if (!(out = fopen(res, type)))
 	{
 		perror(res);
@@ -229,6 +249,9 @@ void biRNA2::run()
 {
 	Table<double> *unrestricted_Q[2];
 
+	printf("started...\n");
+	fflush(stdout);
+
 	advance();
 	len1 = seq[0]->getLen();
 	len2 = seq[1]->getLen();
@@ -241,6 +264,9 @@ void biRNA2::run()
 	/* w = -1: partition function without restriction otherwise unpairing restriction*/
 	
 	vector<tuple<double, int>> top_sites[2];
+
+	printf("initialized\n");
+	fflush(stdout);
 
 	for(int s = 0; s < 2; s++)
 	{
@@ -273,6 +299,9 @@ void biRNA2::run()
 	for(int s = 0; s < 2; s++)
 		Q[s] = unrestricted_Q[s];
 	
+	printf("done with the first one\n");
+	fflush(stdout);
+
 	vector<tuple<double, int, int> > pair_score;		
 
 	allocate(window[0], window[1]);
@@ -282,6 +311,16 @@ void biRNA2::run()
 	double single_prob_1, single_prob_2;
 	double single_score_1, single_score_2;
 
+	printf("before creating the files:\n");
+	fflush(stdout);
+
+	outfile = openfile(seq[0]->getName(), (char *)".bi_paired_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
+	fprintf(outfile, "win_size1\twin_size2\tstart1\tstart2\tunpaired_score_1\tunpaired_score_2\tsingle_score_1\tsignle_score_2\tpair_score\n");
+	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), Q[0]->element(0, seq[0]->getLen()), Q[1]->element(0, seq[1]->getLen()));
+
+	printf("after creating the files:\n");
+	fflush(stdout);
+	
 	for (int i = 0 ; i < top[0] ; i++)
 	{
 		int w1 = get<1>(top_sites[0].at(i));
@@ -311,20 +350,27 @@ void biRNA2::run()
 
 			double prob_mul = interaction_prob * single_prob_1  * single_prob_2;
 			pair_score.push_back(make_tuple(prob_mul, w1, w2));
+			
+			printf("before printing to files:\n");
+			fflush(stdout);
 
+			fprintf(outfile, "%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\n", window[0], window[1], w1, w2, single_unpaired_1, single_unpaired_2, single_score_1, single_score_2, prob_mul);
+
+			printf("after printing to files:\n");
+			fflush(stdout);
+			
 			//refresh_all(window[0], window[1]);
 			release();
 			allocate(window[0], window[1]);
 		}
 	}	
-	release();
 
 	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
 
 
-	//compute(with the right parameters);	
 
 
+	release();
 	//release the kept entire table
 	for(int s = 0; s < 2; s++)
 		delete unrestricted_Q[s];

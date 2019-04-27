@@ -92,10 +92,12 @@ private:
 	int procNum;
 	int files;
 	vector<char *> filenames;
-	FILE *logfile, *outfile;
+	FILE *logfile, *outfile, *name_file;
 
 	double var2;
 	double var3;
+	char *var2_s;
+	char *var3_s;
 	vector<Sequence *> seqs;
 	Sequence *seq[2];
 	int seq_num;
@@ -111,8 +113,8 @@ private:
 	char d2 = 2;
 	BPScore scorer;
 
-	FILE *openfile(char *fn, char *, char *);
-	FILE *openfile(char *fn1, char *fn2, char *, char *);
+	FILE *openfile(char *fn, char *, char *, char *, char *);
+	FILE *openfile(char *fn1, char *fn2, char *, char *, char *, char *);
 	double score(int a, int b, double var2, double var3);
 	double iscore(int a, int b, double var2, double var3);
 
