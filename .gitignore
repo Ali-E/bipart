@@ -10,3 +10,4 @@ tags
 *.scores*
 *.o
 vgcore.*
+*.*.*

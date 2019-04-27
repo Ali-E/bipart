@@ -184,7 +184,6 @@ biRNA2::biRNA2(int argc, char** argv)
 		fprintf(logfile, "suffix = %s\n", suffix);
 	fprintf(logfile, "no. cpus = %d\n", procNum);
 
-	fprintf(outfile, "#seq1\tseq2\tQI\tQ0\tQ1\t-log(QI)\t-log(QI-Q0*Q1)\tlog_interaction_normalized\tlog_full_normalized\n");
 }
 
 FILE * biRNA2::openfile(char *fn, char *ext, char *var2_s, char *var3_s, char *type)
@@ -249,9 +248,6 @@ void biRNA2::run()
 {
 	Table<double> *unrestricted_Q[2];
 
-	printf("started...\n");
-	fflush(stdout);
-
 	advance();
 	len1 = seq[0]->getLen();
 	len2 = seq[1]->getLen();
@@ -264,9 +260,6 @@ void biRNA2::run()
 	/* w = -1: partition function without restriction otherwise unpairing restriction*/
 	
 	vector<tuple<double, int>> top_sites[2];
-
-	printf("initialized\n");
-	fflush(stdout);
 
 	for(int s = 0; s < 2; s++)
 	{
@@ -299,9 +292,6 @@ void biRNA2::run()
 	for(int s = 0; s < 2; s++)
 		Q[s] = unrestricted_Q[s];
 	
-	printf("done with the first one\n");
-	fflush(stdout);
-
 	vector<tuple<double, int, int> > pair_score;		
 
 	allocate(window[0], window[1]);
@@ -356,21 +346,18 @@ void biRNA2::run()
 
 			fprintf(outfile, "%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\n", window[0], window[1], w1, w2, single_unpaired_1, single_unpaired_2, single_score_1, single_score_2, prob_mul);
 
-			printf("after printing to files:\n");
-			fflush(stdout);
-			
 			//refresh_all(window[0], window[1]);
 			release();
 			allocate(window[0], window[1]);
 		}
 	}	
+	release();
 
 	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
 
 
 
 
-	release();
 	//release the kept entire table
 	for(int s = 0; s < 2; s++)
 		delete unrestricted_Q[s];
