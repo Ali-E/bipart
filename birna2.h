@@ -22,10 +22,11 @@ Copyright 2019 Hamid Reza Chitsaz (chitsaz@chitsazlab.org)
 /*
 	Desc: biRNA2 class drives the whole program.
 
-	Author: Hamid Reza Chitsaz and Ali Ebrahimpour Boroojeny
+	Authors: Hamidreza Chitsaz and Ali Ebrahimpour Boroojeny
 		Colorado State University
 		Algorithmic Biology Lab
 
+	Last Update: April 26, 2019
 */
 
 #ifndef BIRNA2_H
@@ -59,14 +60,14 @@ Option OPTIONS[] = {
 	Option('h', (char *)"help", NO_ARG, (char *)"shows this help"),
 	Option('s', (char *)"suffix", NEEDS_ARG, (char *)"= suffix (default NULL)"),
 	Option('d', (char *)"debug", NO_ARG, (char *)"debug"),
-	Option('p', (char *)"proc", NEEDS_ARG, (char *)"= number of CPUs"),
+	Option('p', (char *)"proc", NEEDS_ARG, (char *)"= number of CPUs (default 32)"),
 	Option('q', (char *)"quiet", NO_ARG, (char *)"quiet mode"),
-	Option('M', (char *)"var2", NEEDS_ARG, (char *)"= var2"),
-	Option('N', (char *)"var3", NEEDS_ARG, (char *)"= var3"),
-	Option(1, (char *)"window1", NEEDS_ARG, (char *)"= length of binding site in the first sequence"),
-	Option(2, (char *)"window2", NEEDS_ARG, (char *)"= length of binding site in the second sequence"),
-	Option(3, (char *)"top1", NEEDS_ARG, (char *)"= number of top unpaired sites in the first sequence"),
-	Option(4, (char *)"top2", NEEDS_ARG, (char *)"= number of top unpaired sites in the second sequence"),
+	Option('A', (char *)"AU", NEEDS_ARG, (char *)"= AU score (default 0.5)"),
+	Option('G', (char *)"GU", NEEDS_ARG, (char *)"= GU score (default 1.0)"),
+	Option(1, (char *)"window1", NEEDS_ARG, (char *)"= length of binding site in the first sequence (default 20)"),
+	Option(2, (char *)"window2", NEEDS_ARG, (char *)"= length of binding site in the second sequence (default 20)"),
+	Option(3, (char *)"top1", NEEDS_ARG, (char *)"= number of top unpaired sites in the first sequence (default 50)"),
+	Option(4, (char *)"top2", NEEDS_ARG, (char *)"= number of top unpaired sites in the second sequence (default 50)"),
 	Option(0, NULL, 0, NULL)
 };
 

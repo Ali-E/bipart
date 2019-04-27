@@ -240,12 +240,14 @@ void biRNA2::run()
 
 	/* w = -1: partition function without restriction otherwise unpairing restriction*/
 	
-	vector<tuple<double, int> > top_sites[2];
+	vector<tuple<double, int>> top_sites[2];
+
+	printf("preparation is done!\n");
 
 	for(int s = 0; s < 2; s++)
 	{
-		vector<tuple<double, int> > unpairing_part;		
-		for(int w = -1; w < seq[s]->getLen() - window[s] + 1; w++)
+		vector<tuple<double, int>> unpairing_part;
+		for(int w = -1; w < (int) seq[s]->getLen() - window[s] + 1; w++)
 		{
 			allocate_single(s);
 			compute_single(s, w); //if window_index == -1 then compute unrestricted
@@ -269,23 +271,70 @@ void biRNA2::run()
 			top_sites[s].push_back(unpairing_part[unpairing_part.size()-i-1]);
 	}
 
+	printf("computing the single stranded info is done!\n");
+
 	//run interaction partition for top_sites
 	for(int s = 0; s < 2; s++)
 		Q[s] = unrestricted_Q[s];
 	
 	vector<tuple<double, int, int> > pair_score;		
+
 	allocate(window[0], window[1]);
+	
+	double single_unpaired_1 = 0;
+	double single_unpaired_2 = 0;
+	double single_prob_1, single_prob_2;
+	double single_score_1, single_score_2;
+
+	printf("going to compute pairs...\n");
+	fflush(stdout);
+
 	for (int i = 0 ; i < top[0] ; i++)
 	{
 		int w1 = get<1>(top_sites[0].at(i));
 		char *sq_1 = (char *) seq[0]->getSeq() + w1;
+		
+		single_unpaired_1 = get<0>(top_sites[0].at(i));
+		single_prob_1 = single_unpaired_1 / Q[0]->element(0, seq[0]->getLen());
+	
+		// To be checked!
+		single_score_1 = Q[0]->element(w1, w1+window[0]);
+		
+		printf("1\n");
+		fflush(stdout);
+		
 		for (int j = 0 ; j < top[1] ; j++)
 		{
 			int w2 = get<1>(top_sites[1].at(j));
 			char *sq_2 = (char *) seq[1]->getSeq() + len2 - w2 -window[1];
+
+			printf("2\n");
+			fflush(stdout);
+
+			single_unpaired_2 = get<0>(top_sites[1].at(j));
+			single_prob_2 = single_unpaired_2 / Q[1]->element(0, seq[1]->getLen());
+			
+			single_score_2 = Q[1]->element(w2, w2+window[1]);
+			
+			printf("3\n");
+			fflush(stdout);
+			// Q of interaction:
 			double new_bpscore = compute(sq_1, sq_2);
-			pair_score.push_back(make_tuple(new_bpscore, w1, w2));
-			refresh_all(window[0], window[1]);
+
+			// Probability of no interaction:
+			double interaction_prob = 1.0 - (single_score_1 * single_score_2) / new_bpscore;
+
+			double prob_mul = interaction_prob * single_prob_1  * single_prob_2;
+			pair_score.push_back(make_tuple(prob_mul, w1, w2));
+
+			printf("4\n");
+			fflush(stdout);
+
+			//refresh_all(window[0], window[1]);
+			release();
+			allocate(window[0], window[1]);
+			printf("5\n");
+			fflush(stdout);
 		}
 	}	
 	release();
@@ -308,7 +357,6 @@ void biRNA2::allocate_single(int s)
 	Q[s] = new Table<double>(seq[s]->getLen()+1, seq[s]->getLen()+1, &d2, 1);
 	Qz[s] = new Table<double>(seq[s]->getLen()+1, seq[s]->getLen()+1, &d2, 0);
 	if(!quiet) printf("Allocation and initialization finished. \n");
-
 }
 	
 void biRNA2::allocate(int len_1, int len_2)
@@ -329,12 +377,12 @@ void biRNA2::allocate(int len_1, int len_2)
 }
 
 
-void biRNA2::refresh(Table<double> *table, int len_1, int len_2)
+void biRNA2::refresh(Table<double>* table, int len_1, int len_2)
 {
-	for (int i = 0 ; i < len_1+1 ; i++)
-		for (int j = 0 ; j < len_1+1 ; j++)
-			for (int k = 0 ; k < len_2+1 ; k++)
-				for (int l = 0 ; l < len_2+1 ; l++)
+	for (int i = 0 ; i < len_1 ; i++)
+		for (int j = 0 ; j < len_1 ; j++)
+			for (int k = 0 ; k < len_2 ; k++)
+				for (int l = 0 ; l < len_2 ; l++)
 				{
 					double *res = table->estar(i, k, j, l);
 					*res = 0.0;
@@ -345,6 +393,8 @@ void biRNA2::refresh(Table<double> *table, int len_1, int len_2)
 void biRNA2::refresh_all(int len_1, int len_2)
 {
 	refresh(QI, len_1, len_2);
+	printf("44\n");
+	fflush(stdout);
 	refresh(QIa, len_1, len_2);
 	refresh(QIac, len_1, len_2);
 	refresh(QIe, len_1, len_2);
