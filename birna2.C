@@ -54,8 +54,8 @@ biRNA2::biRNA2(int argc, char** argv)
 	files = 0;
 	seq_num = 0;
 	current_seq = 0;
-	default_window[0] = default_window[1] = 20;
-	default_top[0] = default_top[1] = 50;
+	default_window[0] = default_window[1] = 15;
+	default_top[0] = default_top[1] = 25;
 	var2 = 0.5;
 	var3 = 1.0;
 
@@ -261,8 +261,18 @@ void biRNA2::run()
 	
 	vector<tuple<double, int>> top_sites[2];
 
+	outfile = openfile(seq[0]->getName(), (char *)".bi_single_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
+	fprintf(outfile, "win_size\tstart\tunpaired_score\n");
+	
 	for(int s = 0; s < 2; s++)
 	{
+		if (s == 0)
+			outfile = openfile(seq[0]->getName(), (char *)".bi_single_0.", (char *) var2_s, (char *) var3_s, (char *)"wt");
+		else
+			outfile = openfile(seq[0]->getName(), (char *)".bi_single_1.", (char *) var2_s, (char *) var3_s, (char *)"wt");
+
+		fprintf(outfile, "win_size\tstart\tunpaired_score\n");
+
 		vector<tuple<double, int>> unpairing_part;
 		for(int w = -1; w < (int) seq[s]->getLen() - window[s] + 1; w++)
 		{
@@ -279,6 +289,7 @@ void biRNA2::run()
 			{
 				unpairing_part.push_back(make_tuple(result, w));
 				release_single(s);
+				fprintf(outfile, "%d\t%d\t%f\n", window[s], w, result);
 			}
 		}
 
@@ -292,6 +303,11 @@ void biRNA2::run()
 	for(int s = 0; s < 2; s++)
 		Q[s] = unrestricted_Q[s];
 	
+
+	printf("Single computations are done!\n");
+	fflush(stdout);
+
+
 	vector<tuple<double, int, int> > pair_score;		
 
 	allocate(window[0], window[1]);
@@ -301,18 +317,15 @@ void biRNA2::run()
 	double single_prob_1, single_prob_2;
 	double single_score_1, single_score_2;
 
-	printf("before creating the files:\n");
-	fflush(stdout);
-
 	outfile = openfile(seq[0]->getName(), (char *)".bi_paired_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	fprintf(outfile, "win_size1\twin_size2\tstart1\tstart2\tunpaired_score_1\tunpaired_score_2\tsingle_score_1\tsignle_score_2\tpair_score\n");
 	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), Q[0]->element(0, seq[0]->getLen()), Q[1]->element(0, seq[1]->getLen()));
 
-	printf("after creating the files:\n");
-	fflush(stdout);
-	
 	for (int i = 0 ; i < top[0] ; i++)
 	{
+		printf("%d\n", i);
+		fflush(stdout);
+
 		int w1 = get<1>(top_sites[0].at(i));
 		char *sq_1 = (char *) seq[0]->getSeq() + w1;
 		
@@ -341,9 +354,6 @@ void biRNA2::run()
 			double prob_mul = interaction_prob * single_prob_1  * single_prob_2;
 			pair_score.push_back(make_tuple(prob_mul, w1, w2));
 			
-			printf("before printing to files:\n");
-			fflush(stdout);
-
 			fprintf(outfile, "%d\t%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\n", window[0], window[1], w1, w2, single_unpaired_1, single_unpaired_2, single_score_1, single_score_2, prob_mul);
 
 			//refresh_all(window[0], window[1]);
