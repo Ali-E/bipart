@@ -59,8 +59,8 @@ Option OPTIONS[] = {
 	Option('n', (char *)"nobacktrace", NO_ARG, (char *)"do not perform backtracing"),
 	Option('p', (char *)"proc", NEEDS_ARG, (char *)"= number of CPUs"),
 	Option('q', (char *)"quiet", NO_ARG, (char *)"quiet mode"),
-	Option('M', (char *)"var2", NEEDS_ARG, (char *)"= var2"),
-	Option('N', (char *)"var3", NEEDS_ARG, (char *)"= var3"),
+	Option('A', (char *)"var2", NEEDS_ARG, (char *)"= var2"),
+	Option('G', (char *)"var3", NEEDS_ARG, (char *)"= var3"),
 	Option(0, NULL, 0, NULL)
 };
 

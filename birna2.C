@@ -83,9 +83,9 @@ biRNA2::biRNA2(int argc, char** argv)
 			quiet = true;
       		else if (count == 'p')
 			procNum = atoi(current->getArg());
-		else if (count == 'M')
+		else if (count == 'A')
 			var2 = atof(current->getArg());
-		else if (count == 'N')
+		else if (count == 'G')
 			var3 = atof(current->getArg());
       		else if (count == 1)
 			default_window[0] = atoi(current->getArg());
