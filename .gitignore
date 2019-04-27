@@ -1,4 +1,4 @@
-*.fa
+*.fa*
 *.txt
 data
 .hg
