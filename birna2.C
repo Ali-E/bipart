@@ -305,7 +305,7 @@ void biRNA2::run()
 		Q[s] = unrestricted_Q[s];
 	
 
-	printf("Single computations are done!\n");
+	printf("%s-> Single computations are done!\n", seq[0]->getName());
 	fflush(stdout);
 
 
@@ -320,12 +320,15 @@ void biRNA2::run()
 
 	outfile = openfile(seq[0]->getName(), (char *)".bi_paired_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	fprintf(outfile, "win_size1\twin_size2\tstart1\tstart2\tunpaired_score_1\tunpaired_score_2\tsingle_score_1\tsignle_score_2\tinteraction_prob\tpair_score\n");
-	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), Q[0]->element(0, seq[0]->getLen()), Q[1]->element(0, seq[1]->getLen()));
+	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), log(Q[0]->element(0, seq[0]->getLen())), log(Q[1]->element(0, seq[1]->getLen())));
 
 	for (int i = 0 ; i < top[0] ; i++)
 	{
-		printf("%d\n", i);
-		fflush(stdout);
+		if (!(i%5))
+		{
+			printf("%d\n", i);
+			fflush(stdout);
+		}
 
 		int w1 = get<1>(top_sites[0].at(i));
 		char *sq_1 = (char *) seq[0]->getSeq() + w1;
