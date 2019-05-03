@@ -54,7 +54,7 @@ biRNA2::biRNA2(int argc, char** argv)
 	files = 0;
 	seq_num = 0;
 	current_seq = 0;
-	default_window[0] = default_window[1] = 15;
+	default_window[0] = default_window[1] = 20;
 	default_top[0] = default_top[1] = 25;
 	var2 = 0.5;
 	var3 = 1.0;
@@ -261,15 +261,12 @@ void biRNA2::run()
 	
 	vector<tuple<double, int>> top_sites[2];
 
-	outfile = openfile(seq[0]->getName(), (char *)".bi_single_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
-	fprintf(outfile, "win_size\tstart\tunpaired_score\n");
-	
 	for(int s = 0; s < 2; s++)
 	{
 		if (s == 0)
-			outfile = openfile(seq[0]->getName(), (char *)".bi_single_0.", (char *) var2_s, (char *) var3_s, (char *)"wt");
+			outfile = openfile(seq[0]->getName(), (char *)"_bi_single_0.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 		else
-			outfile = openfile(seq[0]->getName(), (char *)".bi_single_1.", (char *) var2_s, (char *) var3_s, (char *)"wt");
+			outfile = openfile(seq[0]->getName(), (char *)"_bi_single_1.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 
 		fprintf(outfile, "win_size\tstart\tunpaired_score\n");
 
@@ -309,6 +306,9 @@ void biRNA2::run()
 	fflush(stdout);
 
 
+	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), log(Q[0]->element(0, seq[0]->getLen())), log(Q[1]->element(0, seq[1]->getLen())));
+	
+	/*
 	vector<tuple<double, int, int> > pair_score;		
 
 	allocate(window[0], window[1]);
@@ -320,7 +320,6 @@ void biRNA2::run()
 
 	outfile = openfile(seq[0]->getName(), (char *)".bi_paired_res.", (char *) var2_s, (char *) var3_s, (char *)"wt");
 	fprintf(outfile, "win_size1\twin_size2\tstart1\tstart2\tunpaired_score_1\tunpaired_score_2\tsingle_score_1\tsignle_score_2\tinteraction_prob\tpair_score\n");
-	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), log(Q[0]->element(0, seq[0]->getLen())), log(Q[1]->element(0, seq[1]->getLen())));
 
 	for (int i = 0 ; i < top[0] ; i++)
 	{
@@ -367,12 +366,13 @@ void biRNA2::run()
 			release();
 			allocate(window[0], window[1]);
 		}
-	}	
+	}
+	
 	release();
 
 	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
 
-
+	*/
 
 
 	//release the kept entire table
