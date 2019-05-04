@@ -295,6 +295,8 @@ void biRNA2::run()
 
 		for(int i = 0; i < top[s]; i++)
 			top_sites[s].push_back(unpairing_part[unpairing_part.size()-i-1]);
+
+		fclose(outfile);
 	}
 
 	//run interaction partition for top_sites
