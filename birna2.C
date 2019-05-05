@@ -454,7 +454,7 @@ void biRNA2::compute_single(int s, int window_index) //length of window is in wi
 				double sc = score(sq[(s == 0) ? i : (len2 - i - 1)], sq[(s == 0) ? d : (len2 - d - 1)], var2, var3);
 
 				if(window_index != -1) //restricted
-					if((window_index <= i && i < window_index + window[s]) || (window_index <= d && d < window_index + window[s]))
+					if(((window_index <= i && i < window_index + window[s]) || (window_index <= d && d < window_index + window[s])) && !((window_index <= i && i < window_index + window[s]) && (window_index <= d && d < window_index + window[s])))
 						sc = 0; //prevent pairing
 
 				double n = Q[s]->element(i+1,d) * sc * Q[s]->element(d+1, j+1);
