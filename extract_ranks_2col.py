@@ -54,9 +54,9 @@ for idx, row in df.iterrows():
 
 
         i_from_1 = row['start1']
-        i_till_2 = min(row['end1'], row['len1']-1)
+        i_till_1 = min(row['end1'], row['len1']-1)
         
-        i_from_1 = row['start2']
+        i_from_2 = row['start2']
         i_till_2 = min(row['end2'], row['len2']-1)
 
 
@@ -74,14 +74,14 @@ for idx, row in df.iterrows():
             flag_rank = True
 
 
-        if common_section >= (_till-_from+1)/2:
+        if common_section_1 >= (_till_1 - _from_1 + 1)/2 and common_section_2 >= (_till_2 - _from_2 + 1)/2:
             half_count += 1
             if not flag_half:
                 df.ix[idx, 'half'] = idx_2 + 1
                 flag_half = True
 
 
-        if common_section >= (i_till-i_from+1)/2:
+        if common_section_1 >= (i_till_1 - i_from_1 + 1)/2 and common_section_2 >= (i_till_2 - i_from_2 + 1)/2:
             i_half_count += 1
             if not flag_i_half:
                 df.ix[idx, 'i_half'] = idx_2 + 1
