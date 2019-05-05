@@ -3,13 +3,12 @@ import numpy as np
 import sys
 
 
-
+# Sample argv[1]: filenames_birna2.txt
 df_files = pd.read_csv(sys.argv[1], delimiter='\t', index_col=0, names=['Q1', 'Q2'])
-# df_files = pd.read_csv(sys.argv[1], delimiter='\t', names=['id_name', 'Q1', 'Q2'])
 print(df_files.head())
 
+# Sample argv[2]: raw_human_data_aug_info_interactions.csv
 df_interact = pd.read_csv(sys.argv[2], delimiter=',', index_col=0, names=['len1', 'len2', 'start1', 'end1', 'start2', 'end2'])
-# df_interact = pd.read_csv(sys.argv[2], delimiter=',', names=['id_name', 'len1', 'len2', 'start1', 'end1', 'start2', 'end2'])
 print(df_interact.head())
 
 
@@ -37,7 +36,6 @@ df['i_half_count1'] = '.'
 df['i_half_count2'] = '.'
 
 for idx, row in df.iterrows():
-    # name = row['id_name']
     name = str(idx)
     for i in range(2):
         curr_name = name + "_bi_single_" + str(i) + ".0.5_1"
