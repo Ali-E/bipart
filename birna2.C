@@ -310,7 +310,9 @@ void biRNA2::run()
 
 	fprintf(name_file, "%s\t%f\t%f\n", seq[0]->getName(), log(Q[0]->element(0, seq[0]->getLen())), log(Q[1]->element(0, seq[1]->getLen())));
 	
-	/*
+	
+	// Comment out from here to get the single strand results...
+
 	vector<tuple<double, int, int> > pair_score;		
 
 	allocate(window[0], window[1]);
@@ -372,10 +374,10 @@ void biRNA2::run()
 	
 	release();
 
-	sort(pair_score.begin(), pair_score.end()); //sorting by partition function
+	// ^^^^^^^^ Comment out up to here for getting single strand results ^^^^^^^^^
 
-	*/
 
+	// sort(pair_score.begin(), pair_score.end()); //sorting by partition function
 
 	//release the kept entire table
 	for(int s = 0; s < 2; s++)
