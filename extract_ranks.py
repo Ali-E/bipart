@@ -8,7 +8,7 @@ df_files = pd.read_csv(sys.argv[1], delimiter='\t', index_col=0, names=['Q1', 'Q
 print(df_files.head())
 
 # Sample argv[2]: raw_human_data_aug_info_interactions.csv
-df_interact = pd.read_csv(sys.argv[2], delimiter=',', index_col=0, names=['len1', 'len2', 'start1', 'end1', 'start2', 'end2'])
+df_interact = pd.read_csv(sys.argv[2], delimiter=',', index_col=0, names=['len1', 'len2', 'start1', 'end1', 'start2', 'end2', 'type1', 'type2'])
 print(df_interact.head())
 
 
