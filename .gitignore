@@ -1,6 +1,5 @@
 *.fa*
 *.txt
-data
 .hg
 examples
 *.swp
@@ -12,3 +11,9 @@ tags
 vgcore.*
 *.*.*
 *.sh
+appirna
+birna
+birna2
+bpmax
+bppart
+pirna
