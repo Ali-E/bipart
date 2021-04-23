@@ -68,7 +68,7 @@ The precomputed scores on the data from RISE database are available in the `pre_
 To compute the correlations that are presented in the paper and generate the correlation plot of the paper, you can run the command below. Note that `len_data_human_1_101.fa` is the file that has the length information of the RNA pairs in order to normalize the scores.
 
 ```
-   python correlation.py len_data_human_1_101.fa
+   python correlation.py pre_computed/len_data_human_1_101.fa
 ```
 
 
