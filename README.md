@@ -62,5 +62,13 @@ piRNA generates separate files for each of the entries in the input file. To mak
    python src_ext_res.py test_input.fa
 ```
 
+# Precomputed scores
+The precomputed scores on the data from RISE database are available in the `pre_computed` folder. `table_x.csv` files have the scores of piRNA at temperature `x`. BPPart and BPMax scores are also available (they are not temperature-dependent). 
+
+To compute the correlations that are presented in the paper and generate the correlation plot of the paper, you can run the command below. Note that `len_data_human_1_101.fa` is the file that has the length information of the RNA pairs in order to normalize the scores.
+
+```
+   python correlation.py len_data_human_1_101.fa
+```
 
 
