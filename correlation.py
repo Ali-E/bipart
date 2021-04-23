@@ -10,8 +10,8 @@ from scipy.stats.stats import spearmanr
 
 plt.switch_backend('agg')
 
-df_bp = pd.read_csv("bppart_37.csv", delimiter='\t')
-df_pi = pd.read_csv("table_37.csv")
+df_bp = pd.read_csv("pre_computed/bppart_37.csv", delimiter='\t')
+df_pi = pd.read_csv("pre_computed/table_37.csv")
 
 df_len = pd.read_csv(sys.argv[1], header=None, names=["len1", "len2"])
 df_pi["len1"] = df_len["len1"]
@@ -28,7 +28,7 @@ for idx, row in df_pi.iterrows():
         idx_to_del.append(idx)
 
 
-df_pos = pd.read_csv("bpmax_37.csv", delimiter='\t')
+df_pos = pd.read_csv("pre_computed/bpmax_37.csv", delimiter='\t')
 df_pos = df_pos[:len(df_pi)]
 
 df_bp = df_bp[:len(df_pi)]
